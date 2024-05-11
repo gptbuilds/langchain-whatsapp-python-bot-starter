@@ -23,7 +23,7 @@ WORKDIR $WORKDIR
 COPY ./pyproject.toml ./poetry.lock* $WORKDIR/
 
 # Install dependencies using Poetry
-RUN /root/.local/bin/poetry install --no-root
+RUN poetry install --no-root
 
 # Add a new system user and create necessary directories
 RUN adduser --system --group $USER && \
