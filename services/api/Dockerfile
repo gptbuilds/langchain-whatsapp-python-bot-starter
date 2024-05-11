@@ -1,44 +1,38 @@
 FROM python:3.12-slim-bullseye
 
-# Install Poetry and clean up after installation
-RUN apt-get update && \
-    apt-get install -y curl && \
-    curl -sSL https://install.python-poetry.org | python3 - && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade pip
+# Configure Poetry
+ENV POETRY_VERSION=1.2.0
+ENV POETRY_HOME=/opt/poetry
+ENV POETRY_VENV=/opt/poetry-venv
+ENV POETRY_CACHE_DIR=/opt/.cache
 
-# Set environment variables for Poetry and other configurations
-ENV POETRY_HOME="/root/.local/share/pypoetry"
-ENV PATH="$POETRY_HOME/bin:$PATH"
-ENV WORKDIR="/usr/src/app"
-ENV USER="app"
-ENV APP_HOME="/home/app/web"
-ENV LOG_DIR="/home/app/logs"
+# Install poetry separated from system interpreter
+RUN python3 -m venv $POETRY_VENV \
+    && $POETRY_VENV/bin/pip install -U pip setuptools \
+    && $POETRY_VENV/bin/pip install poetry==${POETRY_VERSION}
+
+# Add `poetry` to PATH
+ENV PATH="${PATH}:${POETRY_VENV}/bin"
+
+ENV WORKDIR=/usr/src/app
+ENV USER=app
+ENV APP_HOME=/home/app/web
+ENV LOG_DIR=/home/app/logs
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
-# Set the working directory
 WORKDIR $WORKDIR
 
-# Copy pyproject.toml and poetry.lock to the working directory
-COPY ./pyproject.toml ./poetry.lock* $WORKDIR/
+# Install dependencies
+COPY poetry.lock pyproject.toml ./
+RUN poetry install
 
-# Install dependencies using Poetry
-RUN poetry install --no-root
-
-# Add a new system user and create necessary directories
-RUN adduser --system --group $USER && \
-    mkdir -p $APP_HOME && \
-    mkdir -p $LOG_DIR
-
-# Change the working directory to the application home
+RUN adduser --system --group $USER
+RUN mkdir $APP_HOME
+RUN mkdir $LOG_DIR
 WORKDIR $APP_HOME
 
-# Copy the application code to the container
 COPY . $APP_HOME
-
-# Set ownership of the application directory
-RUN chown -R $USER:$USER $APP_HOME && \
-    chown -R $USER:$USER $LOG_DIR
-
-# Switch to the newly created user
+RUN chown -R $USER:$USER $APP_HOME
+RUN chown -R $USER:$USER $LOG_DIR
 USER $USER
