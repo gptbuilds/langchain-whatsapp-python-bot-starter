@@ -35,4 +35,5 @@ WORKDIR $APP_HOME
 COPY . $APP_HOME
 RUN chown -R $USER:$USER $APP_HOME
 RUN chown -R $USER:$USER $LOG_DIR
+RUN chmod -R 755 /opt/.cache/virtualenvs
 USER $USER
