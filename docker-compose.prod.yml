@@ -4,7 +4,7 @@ services:
   web:
     build:
        context: ./services/api
-    command: poetry run gunicorn run:app --bind 0.0.0.0:5000 -w 4 -k uvicorn.workers.UvicornWorker
+    command: run gunicorn run:app --bind 0.0.0.0:5000 -w 4 -k uvicorn.workers.UvicornWorker
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     expose:
