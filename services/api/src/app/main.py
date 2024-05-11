@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.exceptions import generic_exception_handler
-from app.routes import router
+from src.app.exceptions import generic_exception_handler
+from src.app.routes import router
 from contextlib import asynccontextmanager
 from src.logging.logger import setup_logging
 
