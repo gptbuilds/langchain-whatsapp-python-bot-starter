@@ -11,7 +11,7 @@ services:
       - 5000
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.fastapi.rule=Host(`api.nan0.bot`)"
+      - "traefik.http.routers.fastapi.rule=Host(`credits-panama-api.vipertech.ai`)"
       - "traefik.http.routers.fastapi.tls=true"
       - "traefik.http.routers.fastapi.tls.certresolver=letsencrypt"
 
