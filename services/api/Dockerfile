@@ -3,7 +3,9 @@ FROM python:3.12-slim-bullseye
 # Install Poetry
 RUN apt-get update && \
     apt-get install -y curl && \
-    curl -sSL https://install.python-poetry.org | python3 -
+    curl -sSL https://install.python-poetry.org | python3 - && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set environment variables for Poetry
 ENV POETRY_HOME=/root/.local/share/pypoetry
@@ -22,12 +24,12 @@ WORKDIR $WORKDIR
 COPY ./pyproject.toml ./poetry.lock* $WORKDIR/
 
 # Install dependencies
-RUN poetry install --no-root
+RUN $POETRY_HOME/bin/poetry install --no-root
 
 # Add user and set permissions
 RUN adduser --system --group $USER
-RUN mkdir $APP_HOME
-RUN mkdir $LOG_DIR
+RUN mkdir -p $APP_HOME
+RUN mkdir -p $LOG_DIR
 WORKDIR $APP_HOME
 
 COPY . $APP_HOME
